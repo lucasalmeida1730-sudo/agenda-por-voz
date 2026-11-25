@@ -1,0 +1,20 @@
+{
+  "name": "agenda-por-voz",
+  "version": "1.0.0",
+  "description": "Agenda própria: manda um áudio e o compromisso entra direto no calendário do app.",
+  "type": "module",
+  "main": "server.js",
+  "scripts": {
+    "start": "node --env-file-if-exists=.env server.js",
+    "dev": "node --watch --env-file-if-exists=.env server.js"
+  },
+  "engines": {
+    "node": ">=22.13"
+  },
+  "dependencies": {
+    "@anthropic-ai/sdk": "latest",
+    "express": "^5.1.0",
+    "multer": "^2.0.2",
+    "zod": "^3.25.0"
+  }
+}

@@ -1,0 +1,109 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <meta name="theme-color" content="#1f3a5f" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-title" content="Agenda" />
+  <link rel="manifest" href="manifest.json" />
+  <link rel="icon" href="icon.svg" type="image/svg+xml" />
+  <link rel="apple-touch-icon" href="icon.svg" />
+  <title>Agenda por Voz</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Tela de PIN -->
+  <section id="lock" class="lock" hidden>
+    <div class="lock-card">
+      <img src="icon.svg" alt="" width="64" height="64" />
+      <h1>Agenda</h1>
+      <p>Digite seu PIN para entrar</p>
+      <form id="pinForm">
+        <input id="pinInput" type="password" inputmode="numeric" autocomplete="current-password" placeholder="PIN" required />
+        <button type="submit" class="btn primary">Entrar</button>
+      </form>
+      <p id="pinError" class="error" hidden>PIN incorreto</p>
+    </div>
+  </section>
+
+  <!-- App -->
+  <main id="app" hidden>
+    <header class="top">
+      <button class="icon-btn" id="prevMonth" aria-label="Mês anterior">‹</button>
+      <button class="month-title" id="monthTitle" aria-label="Voltar para hoje"></button>
+      <button class="icon-btn" id="nextMonth" aria-label="Próximo mês">›</button>
+    </header>
+
+    <div class="weekdays">
+      <span>D</span><span>S</span><span>T</span><span>Q</span><span>Q</span><span>S</span><span>S</span>
+    </div>
+    <div class="grid" id="grid"></div>
+
+    <section class="day">
+      <div class="day-head">
+        <h2 id="dayTitle"></h2>
+        <button class="btn ghost small" id="addBtn">+ Novo</button>
+      </div>
+      <ul class="events" id="events"></ul>
+    </section>
+
+    <!-- Barra de voz -->
+    <div class="voicebar">
+      <button class="icon-btn round" id="typeBtn" aria-label="Digitar em vez de falar">⌨</button>
+      <button class="mic" id="micBtn" aria-label="Gravar áudio">
+        <svg viewBox="0 0 24 24" width="34" height="34" aria-hidden="true"><path fill="currentColor" d="M12 15a3 3 0 0 0 3-3V6a3 3 0 1 0-6 0v6a3 3 0 0 0 3 3Zm5-3a5 5 0 0 1-10 0H5a7 7 0 0 0 6 6.92V21h2v-2.08A7 7 0 0 0 19 12h-2Z"/></svg>
+      </button>
+      <span class="rec-time" id="recTime"></span>
+    </div>
+    <p class="hint" id="hint">Fale para marcar (“dentista sexta às 15h”) ou pergunte (“o que tenho amanhã?”)</p>
+  </main>
+
+  <!-- Resultado do áudio -->
+  <div class="toast" id="toast" hidden>
+    <p id="toastText"></p>
+    <p class="transcript" id="toastTranscript"></p>
+    <div class="toast-actions">
+      <button class="btn ghost small" id="undoBtn" hidden>Desfazer</button>
+      <button class="btn small" id="toastClose">OK</button>
+    </div>
+  </div>
+
+  <!-- Editar / novo evento -->
+  <dialog id="editor">
+    <form id="editForm" method="dialog">
+      <h3 id="editTitle">Compromisso</h3>
+      <label>Título <input name="title" required maxlength="200" /></label>
+      <label>Data <input name="date" type="date" required /></label>
+      <div class="row">
+        <label>Início <input name="start" type="time" /></label>
+        <label>Fim <input name="end" type="time" /></label>
+      </div>
+      <label>Local <input name="location" maxlength="300" /></label>
+      <label>Observações <textarea name="notes" rows="3" maxlength="2000"></textarea></label>
+      <p class="transcript" id="editTranscript"></p>
+      <div class="dialog-actions">
+        <button type="button" class="btn danger small" id="deleteBtn">Excluir</button>
+        <span class="spacer"></span>
+        <button type="button" class="btn ghost small" id="cancelBtn">Cancelar</button>
+        <button type="submit" class="btn primary small">Salvar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <!-- Digitar -->
+  <dialog id="typer">
+    <form id="typeForm" method="dialog">
+      <h3>Escreva o compromisso</h3>
+      <textarea name="text" rows="3" placeholder="Ex.: dentista amanhã às 9h na clínica Sorriso" required></textarea>
+      <div class="dialog-actions">
+        <span class="spacer"></span>
+        <button type="button" class="btn ghost small" id="typeCancel">Cancelar</button>
+        <button type="submit" class="btn primary small">Agendar</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script src="app.js" type="module"></script>
+</body>
+</html>
