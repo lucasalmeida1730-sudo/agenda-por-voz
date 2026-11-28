@@ -7,7 +7,7 @@ e o evento entra **direto no calendário do próprio app**.
 ## Como funciona
 
 1. O celular grava o áudio e envia para o servidor.
-2. O servidor transcreve o áudio (OpenAI `gpt-4o-mini-transcribe`).
+2. O servidor transcreve o áudio (Groq `whisper-large-v3-turbo`, grátis; ou OpenAI, se preferir).
 3. O Claude (`claude-opus-5-5`) lê o texto, entende datas como "sexta que vem"
    e devolve o(s) compromisso(s) num formato fixo.
 4. Os eventos são salvos no banco do app (SQLite em `data/agenda.db`) e aparecem no calendário.
@@ -33,7 +33,7 @@ npm install
 Copy-Item .env.example .env
 ```
 
-Abra o `.env` e preencha `ANTHROPIC_API_KEY`, `OPENAI_API_KEY` e troque o `APP_PIN`.
+Abra o `.env` e preencha `ANTHROPIC_API_KEY`, `GROQ_API_KEY` e troque o `APP_PIN`.
 
 ```powershell
 npm start
@@ -63,7 +63,7 @@ Fica com ícone e abre em tela cheia, como um app normal.
 
 ## Custos (aproximado)
 
-- Transcrição: centavos por hora de áudio (um áudio de 10 s custa uma fração de centavo).
+- Transcrição: grátis com a Groq (o plano grátis aguenta centenas de áudios por dia).
 - Claude: alguns centavos de real por compromisso.
 - Hospedagem: Railway a partir de ~US$ 5/mês.
 

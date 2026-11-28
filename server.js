@@ -1,5 +1,5 @@
 // Agenda por Voz - servidor
-// Fluxo: áudio -> transcrição (OpenAI) -> Claude extrai o(s) compromisso(s) -> salva na agenda do app (SQLite)
+// Fluxo: áudio -> transcrição (Groq ou OpenAI) -> Claude extrai o(s) compromisso(s) -> salva na agenda do app (SQLite)
 
 import express from "express";
 import multer from "multer";
@@ -105,15 +105,28 @@ function todayInfo() {
   return { date, weekday, time };
 }
 
+// Transcrição: usa a Groq (grátis) se GROQ_API_KEY existir; senão, a OpenAI.
+function transcriptionProvider() {
+  if (process.env.GROQ_API_KEY) {
+    return { url: "https://api.groq.com/openai/v1/audio/transcriptions", key: process.env.GROQ_API_KEY, model: "whisper-large-v3-turbo" };
+  }
+  if (process.env.OPENAI_API_KEY) {
+    return { url: "https://api.openai.com/v1/audio/transcriptions", key: process.env.OPENAI_API_KEY, model: "gpt-4o-mini-transcribe" };
+  }
+  return null;
+}
+
 async function transcribe(buffer, mimetype, filename) {
-  if (!process.env.OPENAI_API_KEY) throw new Error("OPENAI_API_KEY não configurada no .env");
+  const provider = transcriptionProvider();
+  if (!provider) throw new Error("Falta a chave de transcrição: coloque GROQ_API_KEY nas Variables do Railway");
   const form = new FormData();
-  form.append("file", new Blob([buffer], { type: mimetype || "audio/webm" }), filename || "audio.webm");
-  form.append("model", "gpt-4o-mini-transcribe");
+  const type = (mimetype || "audio/webm").split(";")[0];
+  form.append("file", new Blob([buffer], { type }), filename || "audio.webm");
+  form.append("model", provider.model);
   form.append("language", "pt");
-  const res = await fetch("https://api.openai.com/v1/audio/transcriptions", {
+  const res = await fetch(provider.url, {
     method: "POST",
-    headers: { Authorization: `Bearer ${process.env.OPENAI_API_KEY}` },
+    headers: { Authorization: `Bearer ${provider.key}` },
     body: form,
   });
   if (!res.ok) throw new Error(`Falha na transcrição (${res.status}): ${await res.text()}`);
@@ -285,5 +298,5 @@ app.post("/api/text", async (req, res) => {
 app.listen(PORT, () => {
   console.log(`Agenda por Voz rodando em http://localhost:${PORT}`);
   if (!process.env.ANTHROPIC_API_KEY) console.warn("Aviso: ANTHROPIC_API_KEY não configurada");
-  if (!process.env.OPENAI_API_KEY) console.warn("Aviso: OPENAI_API_KEY não configurada (áudio não vai funcionar)");
+  if (!transcriptionProvider()) console.warn("Aviso: GROQ_API_KEY não configurada (áudio não vai funcionar)");
 });
